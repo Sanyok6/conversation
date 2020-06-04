@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    	<style>
+	.top_middle {text-align:center;}
+		body {background-color:#10f218}
+        .box {border-style: solid;text-align:center;vertical-align:center;background-color:white;}
+        .form {border-style: solid;text-align:center;vertical-align:center;background-color:#249fa5;}
+        .form_warning {border-width: 2px;border-style: solid;text-align:center;vertical-align:center;background-color:#f95e5e;}
+	</style>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1 class="top_middle">Your Chats</h1>
+<!--<div class="box">-->
+<!--    <h2>Your chats</h2>-->
+<!--    <a href="/conversation{{name}}-{{email}}">Conversation</a>-->
+<!--    <br>-->
+<!--</div>-->
+<!--<br>-->
+<form action="" method="post" class="form" id="find">
+    <h2>Find Chat</h2>
+        {% with messages = get_flashed_messages() %}
+        {%if messages %}
+        <h2 class="form_warning">{{messages[0]}}</h2>
+        {%endif%}
+        {%endwith%}
+    <input type="text" placeholder="chat name" name="na" id="na">
+    <input type="password" name="pass" id="pass" placeholder="chat pin"><br>
+    <input type="submit">
+    <br>
+    <h3>or</h3>
+    <h2>Create Chat</h2>
+    <input type="text" placeholder="chat name" name="new_na" id="new_na">
+    <input type="password" name="new_pass" id="new_pass" placeholder="chat pin"><br>
+    <input type="submit">
+    <br>
+    <br>
+</form>
+<br>
+
+
+<h5 class="top_middle">{{name}}, {{email}} -- Chats.</h5>
+</body>
+</html>

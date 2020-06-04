@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #top {background-color:blue;position:relative;left:2px;}
+        #name {position:relative;left:2px;top:-20px;}
+        body {background-color: #79fcf8;}
+        #home_link {position:relative;left:240px;top:-47px;color:#79fcf8;}
+	    .center_middle {text-align:center;vertical-align:center;}
+
+        #form {
+            position:relative;
+            left:50px;
+        }
+
+        .message {
+            position:relative;
+            left:50px;
+        }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>Conversation</title>
+</head>
+
+<body>
+<h1 id="top">Conversation</h1>
+<a href="/home" id="home_link">logout</a>
+    <br>
+    {%for post in posts%}
+    <div style="border-style: solid;background-color:#8fdff7;">
+        <h2 class="message">from {{post[1]}}</h2>
+        <p class="message">{{post[2]}}</p>
+        <br>
+    </div>
+<br>
+    {%endfor%}
+
+
+
+<form action="" method="POST" id="form">
+    <br>
+    <h2>Make a new message</h2>
+    <input type="text" value="{{name}}:" readonly style="width:90px;" name="from" id="from">
+    <input type="text" name="content" placeholder="message content" id="content">
+    <input type="submit" name="submit" value="Submit" id="submit">
+
+    <br>
+</form>
+
+<br>
+<h5>{{name}}, {{email}}</h5>
+</body>
+</html>
