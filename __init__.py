@@ -1,9 +1,8 @@
 from flask import Flask
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template, request, flash, redirect, url_for, session
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import DataRequired, Email, Length
-from flask_login import login_user, current_user, logout_user, login_required
 
 from Database import makeUser, findUser
 from Messages import find, new, findMessages, newMessage
@@ -28,30 +27,41 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/conversation<name>/<email>/<chatName>', methods=['POST', 'GET'])
-def conversation(name, email, chatName):
+@app.route('/conversation', methods=['POST', 'GET'])
+def conversation():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    elif not session.get('chatName'):
+        return redirect('/choose')
+    email = session.get('email')
+    name = findUser(email, "name")
+    chatName = session.get('chatName')
     if request.method == 'POST':
         if request.form['content']!='':
             newMessage(chatName, request.form['from'], request.form['content'])
-        return redirect(f"/conversation{name}/{email}/{chatName}")
+        return redirect(f"/conversation")
     posts=findMessages(chatName)
     return render_template(f'conversation.html', posts=posts, name=name, email=email, chatName=chatName)
 
 
-@app.route('/<email>choose', methods=['POST',"GET"])
-def choose(email):
+@app.route('/choose', methods=['POST',"GET"])
+def choose():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    email = session.get('email')
     name = findUser(email, "name")
 
     if request.method == 'POST':
         if request.form['na'] != '' and request.form['pass'] != "":
-            if hash(request.form["pass"]) == find(request.form["na"])[1]:
-                return redirect(f"conversation{name}/{email}/{find(request.form['na'])[0]}")
+            if request.form["pass"] == find(request.form["na"])[1]:
+                session['chatName'] = request.form['na']
+                return redirect("/conversation")
             else:
                 flash("incorrect name or pin")
 
         elif request.form['new_na'] != '' and len(request.form["new_pass"]) > 3:
-            if new(request.form["new_na"], hash(request.form["new_pass"])) != "failed":
-                return f"<h2>Created new!</h2> <a href={email}-choose>continue</a>"
+            if new(request.form["new_na"], request.form["new_pass"]) != "failed":
+                return f"<h2>Created new!</h2> <a href=choose>continue</a>"
             else:
                 flash("Chat Name is already in use!")
         else:
@@ -64,7 +74,7 @@ def signup():
     form = Signup()
     if form.validate_on_submit():
 
-        if makeUser(form.email.data, form.name.data, hash(form.password.data)) == 'failed':
+        if makeUser(form.email.data, form.name.data, form.password.data) == 'failed':
             flash('email already exists, try a different email.')
             return render_template("signup.html", form=form)
 
@@ -77,14 +87,23 @@ def login():
     form = Login()
     if form.validate_on_submit():
         if findUser(form.email.data) == 'failed':
+            flash('incorrect email or password!')
+            return render_template('login.html', form=form)
+        if form.password.data != findUser(form.email.data)[2]:
             flash('incorrect email or password')
             return render_template('login.html', form=form)
-        if hash(form.password.data) != findUser(form.email.data)[2]:
-            flash('incorrect email or password')
-            return render_template('login.html', form=form)
-        user_email = findUser(form.email.data)[0]
-        return redirect(f'{user_email}-choose')
+        session['logged_in'] = True
+        session['chatName'] = False
+        session['email'] = findUser(form.email.data)[0]
+        return redirect('/choose')
     return render_template('login.html', form=form)
 
+@app.route('/logout')
+def logout():
+    session['logged_in'] = False
+    session['email'] = None
+    session['chatName'] = None
+    return f"<a href='{url_for('home')}'>return home</a><script>alert('logout successful!')</script>"
+
 if __name__ == "__main__":
-    app.run(debug=True, port=1999)
+    app.run(debug=True, port=5000, host='192.168.1.26')
