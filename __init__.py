@@ -9,9 +9,6 @@ from Messages import find, new, findMessages, newMessage
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'wg&}#*%#^&qqvq](rwq)cdr)p!sd{u%(yb}uprrhezhjmw(v]g'
-
-
 class Signup(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email(), Length(max=50)])
     name = StringField('Name', validators=[DataRequired(), Length(max=30)])
@@ -106,4 +103,5 @@ def logout():
     return f"<a href='{url_for('home')}'>return home</a><script>alert('logout successful!')</script>"
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000, host='192.168.1.26')
+    app.secret_key = os.urandom(20)
+    app.run(debug=True, port=5000)
